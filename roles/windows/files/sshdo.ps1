@@ -46,11 +46,5 @@ if (-not $entry) {
     exit 2
 }
 
-$scriptPath = Join-Path $SshdoDir $entry.script
-if (-not (Test-Path $scriptPath)) {
-    Write-Error "sshdo: script not found: $scriptPath"
-    exit 3
-}
-
-& $scriptPath
+Invoke-Expression $entry.command
 exit $LASTEXITCODE
