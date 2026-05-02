@@ -130,3 +130,13 @@
     elements: "{{ win_path_machine_elements }}"
     name: 'Path'
     scope: machine
+
+- name: Ensure C:\ProgramData\ssh\sshdo.d directory exists
+  ansible.windows.win_file:
+    path: C:\ProgramData\ssh\sshdo.d
+    state: directory
+
+- name: Deploy sshdo.ps1
+  ansible.windows.win_copy:
+    src: sshdo.ps1
+    dest: C:\ProgramData\ssh\sshdo.ps1
