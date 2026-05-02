@@ -35,16 +35,14 @@ if (-not $cmd) { $cmd = 'help' }
 $cmd = $cmd.Trim()
 
 if ($cmd -eq 'help') {
-    Write-Output ($commands | ConvertTo-Json -Depth 3 -Compress)
+    $commands | ForEach-Object { Write-Output $_ }
     exit 0
 }
 
-$entry = $commands | Where-Object { $_.name -eq $cmd }
-if (-not $entry) {
-    $names = ((@('help') + ($commands | ForEach-Object { $_.name })) -join ', ')
-    Write-Error "sshdo: unknown command '$cmd' (allowed: $names)"
+if ($commands -notcontains $cmd) {
+    Write-Error "sshdo: not permitted: '$cmd'"
     exit 2
 }
 
-Invoke-Expression $entry.command
+Invoke-Expression $cmd
 exit $LASTEXITCODE
