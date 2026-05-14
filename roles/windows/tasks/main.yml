@@ -56,6 +56,14 @@
       data: 1
       datatype: dword
 
+    # Windows Update: ログオン中ユーザーがいる場合は自動再起動しない。
+    # 長時間ジョブ (capture / ingest / training 等) が予期せぬ再起動で
+    # 中断されるのを防ぐため、再起動はユーザー判断で行う。
+    - key: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU
+      value: NoAutoRebootWithLoggedOnUsers
+      data: 1
+      datatype: dword
+
 # TODO: Future Improvements
 # - Hide Taskbar Widgets and Task View
 # - Disable Window Snap features
