@@ -56,9 +56,23 @@
       data: 1
       datatype: dword
 
-    # Windows Update: ログオン中ユーザーがいる場合は自動再起動しない。
-    # 長時間ジョブ (capture / ingest / training 等) が予期せぬ再起動で
-    # 中断されるのを防ぐため、再起動はユーザー判断で行う。
+    # Windows Update: ダウンロード前に通知し、更新の実行時期をユーザーが選ぶ。
+    # 2026-09-10: HIROGA-RTX4090 の深夜の更新・再起動を受け、GUIで設定し実機確認済み。
+    # Configure Automatic Updates = Enabled / 2 - Notify for download and auto install.
+    # NoAutoUpdate=0 は更新機能を有効にし、AUOptions=2 で通知方式にする。
+    # https://learn.microsoft.com/en-us/windows/deployment/update/waas-restart#registry-keys-used-to-manage-restart
+    - key: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU
+      value: NoAutoUpdate
+      data: 0
+      datatype: dword
+
+    - key: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU
+      value: AUOptions
+      data: 2
+      datatype: dword
+
+    # 既存値を維持。NoAutoRebootWithLoggedOnUsers は AUOptions=4 の場合のみ適用される。
+    # 現在の通知方式 (AUOptions=2) で再起動を防ぐ根拠にはしない。
     - key: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU
       value: NoAutoRebootWithLoggedOnUsers
       data: 1
