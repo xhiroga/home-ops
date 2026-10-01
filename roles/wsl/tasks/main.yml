@@ -119,13 +119,6 @@
   args:
     creates: /home/linuxbrew/.linuxbrew/bin/brew
 
-# brew の cask (claude-code) は Claude Code の自動更新が効かず、22.04 では 2.1.31 のまま 8 か月止まっていた。
-# ネイティブインストーラは ~/.local/bin/claude に入り、以後は自分で更新する (PATH は dotfiles の .path)。
-- name: Install Claude Code (native installer)
-  ansible.builtin.shell: curl -fsSL https://claude.ai/install.sh | bash
-  args:
-    creates: "{{ ansible_env.HOME }}/.local/bin/claude"
-
 - name: Install from Brewfile
   ansible.builtin.command: /home/linuxbrew/.linuxbrew/bin/brew bundle --file={{ item }}
   with_items:
