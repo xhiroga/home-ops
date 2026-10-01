@@ -2,10 +2,6 @@
 
 ## Development
 
-### apps
-
-Do not forget to configure Windows Firewall. `Win+R > wf.msc`
-
 ### How to update Python
 
 ```console
