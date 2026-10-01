@@ -130,6 +130,16 @@
     winget_install.results | selectattr('item', 'equalto', 'Microsoft.OpenSSH.Preview')
     | selectattr('changed', 'equalto', true) | list | length > 0
 
+# 1Password の SSH エージェントは \\.\pipe\openssh-ssh-agent を使う。Windows 標準の ssh-agent が先にこのパイプを
+# 取ると、鍵の無い方が応答して "The agent has no identities" になる (WSL から GIT_SSH=ssh.exe で GitHub に入れない)。
+# 26H2 への更新で自動起動に戻されていたので、毎回無効にする。止めた後は 1Password の設定 → 開発者 →
+# 「SSH エージェントを使用する」をオフ→オン (または 1Password を再起動) して、パイプを取り直させる。
+- name: Disable built-in OpenSSH Authentication Agent (1Password SSH agent uses the same pipe)
+  ansible.windows.win_service:
+    name: ssh-agent
+    state: stopped
+    start_mode: disabled
+
 - name: Configure firewall rules
   community.windows.win_firewall_rule:
     name: "{{ item.name }}"
