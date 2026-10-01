@@ -16,6 +16,28 @@
     mode: '0644'
   become: true
 
+# openssh-server の postinst が ssh.socket を起動する前に置く。既定の Port 22 は mirrored networking では
+# Windows の sshd が持っていて、ssh.socket が "Address already in use" で落ち、dpkg ごと失敗する。
+# --force-confold なので、先に置いた設定はパッケージに上書きされない。
+- name: Ensure /etc/ssh exists
+  ansible.builtin.file:
+    path: /etc/ssh
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Copy sshd_config
+  ansible.builtin.copy:
+    src: etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0644'
+  register: sshd_config
+  become: true
+
 - name: Install base packages
   ansible.builtin.apt:
     name:
@@ -45,15 +67,6 @@
     creates: /etc/ssh/ssh_host_ed25519_key
   become: true
 
-- name: Copy sshd_config
-  ansible.builtin.copy:
-    src: etc/ssh/sshd_config
-    dest: /etc/ssh/sshd_config
-    owner: root
-    group: root
-    mode: '0644'
-  become: true
-
 - name: Ensure .ssh directory exists
   ansible.builtin.file:
     path: "~/.ssh"
@@ -72,11 +85,14 @@
     dest: "~/.ssh/authorized_keys"
     mode: '0600'
 
-- name: Enable and start openssh-server
+# 24.04 以降の sshd は socket 起動で、listen するポートは sshd-socket-generator が sshd_config の Port から作る。
+# 設定を変えたら daemon-reload してから ssh.socket を張り直す。
+- name: Enable and start openssh-server (socket activation)
   ansible.builtin.systemd:
-    name: ssh
-    state: started
+    name: ssh.socket
+    state: "{{ 'restarted' if sshd_config is changed else 'started' }}"
     enabled: true
+    daemon_reload: true
   become: true
 
 - name: Upgrade all packages
