@@ -11,7 +11,7 @@
 
 Include /etc/ssh/sshd_config.d/*.conf
 
-Port 2222
+Port 2604
 #AddressFamily any
 #ListenAddress 0.0.0.0
 #ListenAddress ::
