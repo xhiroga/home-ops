@@ -95,6 +95,30 @@
     daemon_reload: true
   become: true
 
+# 中身は files/etc/nftables.conf の先頭。distro の netns にだけ効く (Docker Desktop 側は homelab/nft-guard)。
+- name: Install nftables
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+  become: true
+
+- name: Copy nftables.conf
+  ansible.builtin.copy:
+    src: etc/nftables.conf
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: '0755'
+  register: nftables_conf
+  become: true
+
+- name: Enable and start nftables
+  ansible.builtin.systemd:
+    name: nftables
+    state: "{{ 'restarted' if nftables_conf is changed else 'started' }}"
+    enabled: true
+  become: true
+
 - name: Upgrade all packages
   ansible.builtin.apt:
     upgrade: dist
